@@ -1,0 +1,73 @@
+<canvas id="myCanvas" style="border:1px solid #000000;"></canvas>
+<script>
+var origin = {x:200, y:200};
+var circles = [
+    {
+        radius:80,          // 振幅
+        frequence:1,        // 频率
+        theta:0,            // 初相
+    },
+    {
+        radius:80/3,        // 振幅
+        frequence:3,        // 频率
+        theta:0,            // 初相
+    },
+    {
+        radius:80/5,        // 振幅
+        frequence:5,        // 频率
+        theta:0,            // 初相
+    },
+    {
+        radius:80/7,        // 振幅
+        frequence:7,        // 频率
+        theta:0,            // 初相
+    },
+    {
+        radius:80/9,        // 振幅
+        frequence:9,        // 频率
+        theta:0,            // 初相
+    },
+];
+
+var curve = {
+    points : [],
+    length : 1000,
+};
+var cnt = 0;
+var ctx = document.getElementById("myCanvas").getContext("2d");
+ctx.canvas.width  = window.innerWidth;
+ctx.canvas.height = window.innerHeight;
+
+function refresh(){
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    var current_center = origin;
+    for (var i = 0; i < circles.length; i ++) {
+        var intersect = {
+            x:current_center.x + Math.cos(circles[i].theta) * circles[i].radius,
+            y:current_center.y - Math.sin(circles[i].theta) * circles[i].radius,
+        };
+        circles[i].theta += Math.PI / 180 * circles[i].frequence;
+        ctx.beginPath();
+        ctx.arc(current_center.x, current_center.y, circles[i].radius, 0, 2 * Math.PI); 
+        ctx.moveTo(current_center.x, current_center.y);
+        ctx.lineTo(intersect.x, intersect.y);
+        ctx.stroke();
+
+        current_center = intersect;
+    }
+    ctx.beginPath();
+    for(var i = 0; i < curve.points.length; i ++) {
+        curve.points[i].x += 0.5;
+        ctx.fillRect(curve.points[i].x, curve.points[i].y, 1, 1);
+    }
+    curve.points[cnt % curve.length] = {x:500, y:current_center.y};
+    ctx.moveTo(current_center.x, current_center.y);
+    ctx.lineTo(500, current_center.y)
+    ctx.stroke();
+    cnt ++;
+    console.log(curve.points);
+}
+
+setInterval(refresh, 5000/360);
+
+</script>
