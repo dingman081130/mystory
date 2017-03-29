@@ -1,31 +1,56 @@
 <canvas id="myCanvas" style="border:1px solid #000000;"></canvas>
 <script>
-var origin = {x:200, y:200};
+var origin = {x:100, y:100};
+var base_radius = 50;
+var curve_length = 1000;
+var curve_start  = 500;
+
 var circles = [
     {
-        radius:80,          // 振幅
-        frequence:1,        // 频率
-        theta:0,            // 初相
+        radius:base_radius,     // 振幅
+        center:{},              // 圆心
+        frequence:1,            // 频率
+        theta:0,                // 初相
+        intersect:{},           // 交点
+        curve:[],               // 曲线
+        color:"#bf616a",        // 颜色
+
     },
     {
-        radius:80/3,        // 振幅
-        frequence:3,        // 频率
-        theta:0,            // 初相
+        radius:base_radius / 3, // 振幅
+        center:{},              // 圆心
+        frequence:3,            // 频率
+        theta:0,                // 初相
+        intersect:{},           // 交点
+        curve:[],               // 曲线
+        color:"#a3be8c",        // 颜色
     },
     {
-        radius:80/5,        // 振幅
-        frequence:5,        // 频率
-        theta:0,            // 初相
+        radius:base_radius / 5, // 振幅
+        center:{},              // 圆心
+        frequence:5,            // 频率
+        theta:0,                // 初相
+        intersect:{},           // 交点
+        curve:[],               // 曲线
+        color:"#eccb8b",        // 颜色
     },
     {
-        radius:80/7,        // 振幅
-        frequence:7,        // 频率
-        theta:0,            // 初相
+        radius:base_radius / 7, // 振幅
+        center:{},              // 圆心
+        frequence:7,            // 频率
+        theta:0,                // 初相
+        intersect:{},           // 交点
+        curve:[],               // 曲线
+        color:"#81a1c1",        // 颜色
     },
     {
-        radius:80/9,        // 振幅
-        frequence:9,        // 频率
-        theta:0,            // 初相
+        radius:base_radius / 9, // 振幅
+        center:{},              // 圆心
+        frequence:9,            // 频率
+        theta:0,                // 初相
+        intersect:{},           // 交点
+        curve:[],               // 曲线
+        color:"#88c0d0",        // 颜色
     },
 ];
 
@@ -42,30 +67,36 @@ function refresh(){
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     var current_center = origin;
     for (var i = 0; i < circles.length; i ++) {
+        circles[i].center = current_center;
         var intersect = {
             x:current_center.x + Math.cos(circles[i].theta) * circles[i].radius,
             y:current_center.y - Math.sin(circles[i].theta) * circles[i].radius,
         };
+        circles[i].intersect = intersect;
+        for (var j = 0; j < circles[i].curve.length; j ++) {
+            circles[i].curve[j].x += 0.5;
+        }
+        circles[i].curve[cnt % curve_length] = {x:curve_start, y:intersect.y};
         circles[i].theta += Math.PI / 180 * circles[i].frequence;
-        ctx.beginPath();
-        ctx.arc(current_center.x, current_center.y, circles[i].radius, 0, 2 * Math.PI); 
-        ctx.moveTo(current_center.x, current_center.y);
-        ctx.lineTo(intersect.x, intersect.y);
-        ctx.stroke();
-
         current_center = intersect;
     }
-    ctx.beginPath();
-    for(var i = 0; i < curve.points.length; i ++) {
-        curve.points[i].x += 0.5;
-        ctx.fillRect(curve.points[i].x, curve.points[i].y, 1, 1);
+
+    
+    for (var i = 0; i < circles.length; i ++) {
+        ctx.beginPath();
+        ctx.fillStyle = circles[i].color; 
+        ctx.strokeStyle = circles[i].color;
+        ctx.arc(circles[i].center.x, circles[i].center.y, circles[i].radius, 0, 2 * Math.PI);
+        ctx.moveTo(circles[i].center.x, circles[i].center.y);
+        ctx.lineTo(circles[i].intersect.x, circles[i].intersect.y);
+        ctx.moveTo(circles[i].intersect.x, circles[i].intersect.y);
+        ctx.lineTo(curve_start, circles[i].intersect.y);
+        for (var j = 0; j < circles[i].curve.length; j ++) {
+            ctx.fillRect(circles[i].curve[j].x, circles[i].curve[j].y, 1, 1);
+        }
+        ctx.stroke();
     }
-    curve.points[cnt % curve.length] = {x:500, y:current_center.y};
-    ctx.moveTo(current_center.x, current_center.y);
-    ctx.lineTo(500, current_center.y)
-    ctx.stroke();
     cnt ++;
-    console.log(curve.points);
 }
 
 setInterval(refresh, 5000/360);
