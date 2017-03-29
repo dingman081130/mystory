@@ -1,104 +1,113 @@
-<canvas id="myCanvas" style="border:1px solid #000000;"></canvas>
+<script src="./vue.js"></script>
+<div id="app">
+    <canvas id="myCanvas" style="border:1px solid #000000;"></canvas>
+    <p>{{ message }}</p>
+    <input v-model="message">
+</div>
 <script>
-var origin = {x:100, y:100};
-var base_radius = 50;
-var curve_length = 1000;
-var curve_start  = 500;
-
-var circles = [
-    {
-        radius:base_radius,     // 振幅
-        center:{},              // 圆心
-        frequence:1,            // 频率
-        theta:0,                // 初相
-        intersect:{},           // 交点
-        curve:[],               // 曲线
-        color:"#bf616a",        // 颜色
-
+var app = new Vue({
+    el: '#app',
+    data: {
+        origin : {x:100, y:100},
+        base_radius : 50,
+        curve_length : 1000,
+        curve_start : 500,
+        message: 'Hello Vue!',
+        cnt : 0,
+        circles : [],
+        ctx : ''
     },
-    {
-        radius:base_radius / 3, // 振幅
-        center:{},              // 圆心
-        frequence:3,            // 频率
-        theta:0,                // 初相
-        intersect:{},           // 交点
-        curve:[],               // 曲线
-        color:"#a3be8c",        // 颜色
+    methods : {
+        init : function(e) {
+            this.circles = [
+                {
+                    radius:this.base_radius,     // 振幅
+                    center:{},              // 圆心
+                    frequence:1,            // 频率
+                    theta:0,                // 初相
+                    intersect:{},           // 交点
+                    curve:[],               // 曲线
+                    color:"#bf616a",        // 颜色
+                    },
+                {
+                    radius:this.base_radius / 3, // 振幅
+                    center:{},              // 圆心
+                    frequence:3,            // 频率
+                    theta:0,                // 初相
+                    intersect:{},           // 交点
+                    curve:[],               // 曲线
+                    color:"#a3be8c",        // 颜色
+                },
+                {
+                    radius:this.base_radius / 5, // 振幅
+                    center:{},              // 圆心
+                    frequence:5,            // 频率
+                    theta:0,                // 初相
+                    intersect:{},           // 交点
+                    curve:[],               // 曲线
+                    color:"#eccb8b",        // 颜色
+                },
+                {
+                    radius:this.base_radius / 7, // 振幅
+                    center:{},              // 圆心
+                    frequence:7,            // 频率
+                    theta:0,                // 初相
+                    intersect:{},           // 交点
+                    curve:[],               // 曲线
+                    color:"#81a1c1",        // 颜色
+                },
+                {
+                    radius:this.base_radius / 9, // 振幅
+                    center:{},              // 圆心
+                    frequence:9,            // 频率
+                    theta:0,                // 初相
+                    intersect:{},           // 交点
+                    curve:[],               // 曲线
+                    color:"#88c0d0",        // 颜色
+                }
+            ];
+        },
+        refresh : function(e) {
+            this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+            var current_center = this.origin;
+            for (var i = 0; i < this.circles.length; i ++) {
+                this.circles[i].center = current_center;
+                this.circles[i].intersect = {
+                    x : current_center.x + Math.cos(this.circles[i].theta) * this.circles[i].radius,
+                    y : current_center.y - Math.sin(this.circles[i].theta) * this.circles[i].radius,
+                };
+                for (var j = 0; j < this.circles[i].curve.length; j ++) {
+                    this.circles[i].curve[j].x += 0.5;
+                }
+                this.circles[i].curve[this.cnt % this.curve_length] = {x:this.curve_start, y:this.circles[i].intersect.y};
+                this.circles[i].theta += Math.PI / 180 * this.circles[i].frequence;
+                current_center = this.circles[i].intersect;
+            }
+            for (var i = 0; i < this.circles.length; i ++) {
+                this.ctx.beginPath();
+                this.ctx.fillStyle = this.circles[i].color;
+                this.ctx.strokeStyle = this.circles[i].color;
+                this.ctx.arc(this.circles[i].center.x, this.circles[i].center.y, this.circles[i].radius, 0, 2 * Math.PI);
+                this.ctx.moveTo(this.circles[i].center.x, this.circles[i].center.y);
+                this.ctx.lineTo(this.circles[i].intersect.x, this.circles[i].intersect.y);
+                this.ctx.moveTo(this.circles[i].intersect.x, this.circles[i].intersect.y);
+                this.ctx.lineTo(this.curve_start, this.circles[i].intersect.y);
+                for (var j = 0; j < this.circles[i].curve.length; j ++) {
+                    this.ctx.fillRect(this.circles[i].curve[j].x, this.circles[i].curve[j].y, 1, 1);
+                }
+                this.ctx.stroke();
+            }
+            this.cnt ++;
+           
+        }        
     },
-    {
-        radius:base_radius / 5, // 振幅
-        center:{},              // 圆心
-        frequence:5,            // 频率
-        theta:0,                // 初相
-        intersect:{},           // 交点
-        curve:[],               // 曲线
-        color:"#eccb8b",        // 颜色
-    },
-    {
-        radius:base_radius / 7, // 振幅
-        center:{},              // 圆心
-        frequence:7,            // 频率
-        theta:0,                // 初相
-        intersect:{},           // 交点
-        curve:[],               // 曲线
-        color:"#81a1c1",        // 颜色
-    },
-    {
-        radius:base_radius / 9, // 振幅
-        center:{},              // 圆心
-        frequence:9,            // 频率
-        theta:0,                // 初相
-        intersect:{},           // 交点
-        curve:[],               // 曲线
-        color:"#88c0d0",        // 颜色
-    },
-];
-
-var curve = {
-    points : [],
-    length : 1000,
-};
-var cnt = 0;
-var ctx = document.getElementById("myCanvas").getContext("2d");
-ctx.canvas.width  = window.innerWidth;
-ctx.canvas.height = window.innerHeight;
-
-function refresh(){
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    var current_center = origin;
-    for (var i = 0; i < circles.length; i ++) {
-        circles[i].center = current_center;
-        var intersect = {
-            x:current_center.x + Math.cos(circles[i].theta) * circles[i].radius,
-            y:current_center.y - Math.sin(circles[i].theta) * circles[i].radius,
-        };
-        circles[i].intersect = intersect;
-        for (var j = 0; j < circles[i].curve.length; j ++) {
-            circles[i].curve[j].x += 0.5;
-        }
-        circles[i].curve[cnt % curve_length] = {x:curve_start, y:intersect.y};
-        circles[i].theta += Math.PI / 180 * circles[i].frequence;
-        current_center = intersect;
+    mounted : function(){
+        this.init();
+        this.ctx = document.getElementById("myCanvas").getContext("2d");
+        this.ctx.canvas.width  = window.innerWidth - 20;
+        this.ctx.canvas.height = 250;
+        setInterval(this.refresh, 5000/360);
     }
-
-    
-    for (var i = 0; i < circles.length; i ++) {
-        ctx.beginPath();
-        ctx.fillStyle = circles[i].color; 
-        ctx.strokeStyle = circles[i].color;
-        ctx.arc(circles[i].center.x, circles[i].center.y, circles[i].radius, 0, 2 * Math.PI);
-        ctx.moveTo(circles[i].center.x, circles[i].center.y);
-        ctx.lineTo(circles[i].intersect.x, circles[i].intersect.y);
-        ctx.moveTo(circles[i].intersect.x, circles[i].intersect.y);
-        ctx.lineTo(curve_start, circles[i].intersect.y);
-        for (var j = 0; j < circles[i].curve.length; j ++) {
-            ctx.fillRect(circles[i].curve[j].x, circles[i].curve[j].y, 1, 1);
-        }
-        ctx.stroke();
-    }
-    cnt ++;
-}
-
-setInterval(refresh, 5000/360);
+})
 
 </script>
