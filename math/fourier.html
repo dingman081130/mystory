@@ -1,15 +1,19 @@
 <script src="./vue.js"></script>
 <div id="app">
     <canvas id="myCanvas" style="border:1px solid #000000;"></canvas>
-    <span>展示级数: {{ show }}</span>
+    <label>当前有{{ active }}个圆在运行</label>
     <button v-on:click="iincrease">↑</button>
     <button v-on:click="ddecrease">↓</button>
     <button v-on:click="ppause" v-if="pause">Continue</button>
     <button v-on:click="ppause" v-else>Pause</button>
     <button v-on:click="sstep">Step</button>
     <ul>
-        <li v-for="circle in circles">
-            {{ circle.theta | triangle }}
+        <li v-for="(circle, index) in circles">
+        <span> {{ circle.theta | triangle }} </span>
+        <span> {{ circle.frequency }} </span>
+        <input v-model="circle.frequency">
+        <button v-on:click="hhide(index)" v-if="circle.hide">Show</button>
+        <button v-on:click="hhide(index)" v-else>Hide</button>
         </li>
     </ul>
 </div>
@@ -27,13 +31,13 @@ var app = new Vue({
         wavelenght : 0,
         boundary : 0,
         circles : [
-            {center:{}, theta:0, intersect:{}, curve:[], cnt:0, color:'#bf616a'},
-            {center:{}, theta:0, intersect:{}, curve:[], cnt:0, color:'#a3be8c'},
-            {center:{}, theta:0, intersect:{}, curve:[], cnt:0, color:'#eccb8b'},
-            {center:{}, theta:0, intersect:{}, curve:[], cnt:0, color:'#81a1c1'},
-            {center:{}, theta:0, intersect:{}, curve:[], cnt:0, color:'#88c0d0'}
+            {center:{}, theta:0, intersect:{}, curve:[], cnt:0, color:'#bf616a', hide:false},
+            {center:{}, theta:0, intersect:{}, curve:[], cnt:0, color:'#a3be8c', hide:false},
+            {center:{}, theta:0, intersect:{}, curve:[], cnt:0, color:'#eccb8b', hide:false},
+            {center:{}, theta:0, intersect:{}, curve:[], cnt:0, color:'#81a1c1', hide:false},
+            {center:{}, theta:0, intersect:{}, curve:[], cnt:0, color:'#88c0d0', hide:false}
         ],
-        show : 3,
+        active : 3,
         ctx : '',
         pause : false,
     },
@@ -42,7 +46,7 @@ var app = new Vue({
             this.boundary = this.origin.x = 0;
             for (var i = 0; i < this.circles.length; i ++) {
                 this.circles[i].radius = this.radius / (i + 1);     // 振幅
-                this.circles[i].frequence = 1 + 2 * i;              // 频率
+                this.circles[i].frequency = 1 + 2 * i;              // 频率
                 this.boundary += this.circles[i].radius;
                 this.origin.x += this.circles[i].radius;
             }
@@ -58,16 +62,21 @@ var app = new Vue({
             this.ctx.canvas.height = this.canvas.height;
         },
         iincrease : function() {
-            if (this.show < this.circles.length) {
-                this.show ++;
+            if (this.active < this.circles.length) {
+                this.active ++;
             }
+            this.redraw();
         },
         ddecrease : function() {
-            if (this.show > 1) {
-                this.show --;
+            if (this.active > 1) {
+                this.active --;
             }
-            this.circles[this.show].curve = [];
-            this.circles[this.show].cnt = 0;
+            this.circles[this.active].curve = [];
+            this.circles[this.active].cnt = 0;
+            this.redraw();
+        },
+        hhide : function(index) {
+            this.circles[index].hide = !this.circles[index].hide;
         },
         ppause : function() {
             this.pause = !this.pause;
@@ -85,31 +94,35 @@ var app = new Vue({
                     x : current_center.x + Math.cos(this.circles[i].theta) * this.circles[i].radius,
                     y : current_center.y - Math.sin(this.circles[i].theta) * this.circles[i].radius,
                 };
-                if (i < this.show ) {
+                if (i < this.active ) {
                     for (var j = 0; j < this.circles[i].curve.length; j ++) {
                         this.circles[i].curve[j].x += this.step;
                     }
                     this.circles[i].curve[this.circles[i].cnt % this.wavelenght] = {x:this.boundary, y:this.circles[i].intersect.y};
                     this.circles[i].cnt ++;
                 }
-                this.circles[i].theta = (this.circles[i].theta + Math.PI / 180 * this.circles[i].frequence) % (2 * Math.PI);
+                this.circles[i].theta = (this.circles[i].theta + Math.PI / 180 * this.circles[i].frequency) % (2 * Math.PI);
                 current_center = this.circles[i].intersect;
             }
         },
         redraw : function(e) {
             this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-            for (var i = 0; i < this.show; i ++) {
+            for (var i = 0; i < this.active; i ++) {
                 this.ctx.beginPath();
                 this.ctx.fillStyle = this.circles[i].color;
                 this.ctx.strokeStyle = this.circles[i].color;
                 this.ctx.arc(this.circles[i].center.x, this.circles[i].center.y, this.circles[i].radius, 0, 2 * Math.PI);
                 this.ctx.moveTo(this.circles[i].center.x, this.circles[i].center.y);
                 this.ctx.lineTo(this.circles[i].intersect.x, this.circles[i].intersect.y);
-                this.ctx.moveTo(this.circles[i].intersect.x, this.circles[i].intersect.y);
-                this.ctx.lineTo(this.boundary, this.circles[i].intersect.y);
-                for (var j = 0; j < this.circles[i].curve.length; j ++) {
-                    this.ctx.fillRect(this.circles[i].curve[j].x, this.circles[i].curve[j].y, 1, 1);
+                
+                if (!this.circles[i].hide) {
+                    this.ctx.moveTo(this.circles[i].intersect.x, this.circles[i].intersect.y);
+                    this.ctx.lineTo(this.boundary, this.circles[i].intersect.y);
+                    for (var j = 0; j < this.circles[i].curve.length; j ++) {
+                        this.ctx.fillRect(this.circles[i].curve[j].x, this.circles[i].curve[j].y, 1, 1);
+                    }
                 }
+
                 this.ctx.stroke();
             }
         },
