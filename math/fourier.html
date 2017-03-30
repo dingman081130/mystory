@@ -1,73 +1,81 @@
 <script src="./vue.js"></script>
 <div id="app">
     <canvas id="myCanvas" style="border:1px solid #000000;"></canvas>
-    <p>{{ message }}</p>
-    <input v-model="message">
+    <span>展示级数: {{ show }}</span>
+    <button v-on:click="iincrease">↑</button>
+    <button v-on:click="ddecrease">↓</button>
+    <button v-on:click="ppause">{{ buttons.pause }}</button>
+    <button v-on:click="sstep">Step</button>
 </div>
 <script>
 var app = new Vue({
     el: '#app',
     data: {
-        origin : {x:100, y:100},
-        base_radius : 50,
-        curve_length : 1000,
-        curve_start : 500,
-        message: 'Hello Vue!',
+        canvas : { width :1000, height : 0 },
+        radius : 50,
+        step : 0.5,
+        origin : { x : 0, y : 0 },
+        wavelenght : 0,
+        boundary : 0,
         cnt : 0,
         circles : [],
-        ctx : ''
+        colors : ['#bf616a', '#a3be8c', '#eccb8b', '#81a1c1', '#88c0d0'],
+        series : 5,
+        show : 5,
+        ctx : '',
+        pause : false,
+        buttons : {
+            'pause' : 'Pause',
+        }
     },
     methods : {
         init : function(e) {
-            this.circles = [
-                {
-                    radius:this.base_radius,     // 振幅
-                    center:{},              // 圆心
-                    frequence:1,            // 频率
-                    theta:0,                // 初相
-                    intersect:{},           // 交点
-                    curve:[],               // 曲线
-                    color:"#bf616a",        // 颜色
-                    },
-                {
-                    radius:this.base_radius / 3, // 振幅
-                    center:{},              // 圆心
-                    frequence:3,            // 频率
-                    theta:0,                // 初相
-                    intersect:{},           // 交点
-                    curve:[],               // 曲线
-                    color:"#a3be8c",        // 颜色
-                },
-                {
-                    radius:this.base_radius / 5, // 振幅
-                    center:{},              // 圆心
-                    frequence:5,            // 频率
-                    theta:0,                // 初相
-                    intersect:{},           // 交点
-                    curve:[],               // 曲线
-                    color:"#eccb8b",        // 颜色
-                },
-                {
-                    radius:this.base_radius / 7, // 振幅
-                    center:{},              // 圆心
-                    frequence:7,            // 频率
-                    theta:0,                // 初相
-                    intersect:{},           // 交点
-                    curve:[],               // 曲线
-                    color:"#81a1c1",        // 颜色
-                },
-                {
-                    radius:this.base_radius / 9, // 振幅
-                    center:{},              // 圆心
-                    frequence:9,            // 频率
-                    theta:0,                // 初相
-                    intersect:{},           // 交点
-                    curve:[],               // 曲线
-                    color:"#88c0d0",        // 颜色
-                }
-            ];
+            this.boundary = this.origin.x = 0;
+            for (var i = 0; i < this.series; i ++) {
+                this.circles[i] = {
+                    radius : this.radius / (i + 1),    // 振幅
+                    center : {},                            // 圆心
+                    frequence:  1 + 2 * i,                  // 频率
+                    theta:0,                                // 初相
+                    intersect:{},                           // 交点
+                    curve:[],                               // 曲线
+                    color:this.colors[i],                   // 颜色
+                };
+                this.boundary += this.circles[i].radius;
+                this.origin.x += this.circles[i].radius;
+            }
+            this.origin.x += 20;
+            this.origin.y = this.origin.x;
+            this.canvas.height = 2 * this.origin.y
+            this.boundary += this.origin.x;
+            this.boundary += 50;
+            this.wavelenght = parseInt((this.canvas.width - this.boundary) / this.step) - 20;
+            
+            this.ctx = document.getElementById("myCanvas").getContext("2d");
+            this.ctx.canvas.width  = this.canvas.width;  //window.innerWidth - 20;
+            this.ctx.canvas.height = this.canvas.height;
         },
-        refresh : function(e) {
+        iincrease : function() {
+            if (this.show < this.series) {
+                this.show ++;
+            }
+        },
+        ddecrease : function() {
+            if (this.show > 1) {
+                this.show --;
+            }
+        },
+        ppause : function() {
+            this.pause = !this.pause;
+            this.buttons.pause = this.pause ? 'Continue' : 'Pause';
+        },
+        sstep : function() {
+            this.pause = true;
+            this.recompute();
+            this.redraw();
+            this.cnt ++;
+        },
+        recompute : function(e) {
             this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
             var current_center = this.origin;
             for (var i = 0; i < this.circles.length; i ++) {
@@ -77,13 +85,15 @@ var app = new Vue({
                     y : current_center.y - Math.sin(this.circles[i].theta) * this.circles[i].radius,
                 };
                 for (var j = 0; j < this.circles[i].curve.length; j ++) {
-                    this.circles[i].curve[j].x += 0.5;
+                    this.circles[i].curve[j].x += this.step;
                 }
-                this.circles[i].curve[this.cnt % this.curve_length] = {x:this.curve_start, y:this.circles[i].intersect.y};
+                this.circles[i].curve[this.cnt % this.wavelenght] = {x:this.boundary, y:this.circles[i].intersect.y};
                 this.circles[i].theta += Math.PI / 180 * this.circles[i].frequence;
                 current_center = this.circles[i].intersect;
             }
-            for (var i = 0; i < this.circles.length; i ++) {
+        },
+        redraw : function(e) {
+            for (var i = 0; i < this.show; i ++) {
                 this.ctx.beginPath();
                 this.ctx.fillStyle = this.circles[i].color;
                 this.ctx.strokeStyle = this.circles[i].color;
@@ -91,22 +101,26 @@ var app = new Vue({
                 this.ctx.moveTo(this.circles[i].center.x, this.circles[i].center.y);
                 this.ctx.lineTo(this.circles[i].intersect.x, this.circles[i].intersect.y);
                 this.ctx.moveTo(this.circles[i].intersect.x, this.circles[i].intersect.y);
-                this.ctx.lineTo(this.curve_start, this.circles[i].intersect.y);
+                this.ctx.lineTo(this.boundary, this.circles[i].intersect.y);
                 for (var j = 0; j < this.circles[i].curve.length; j ++) {
                     this.ctx.fillRect(this.circles[i].curve[j].x, this.circles[i].curve[j].y, 1, 1);
                 }
                 this.ctx.stroke();
             }
+            
+        },
+        refresh : function(e) {
+            if (this.pause) {
+                return;
+            }
+            this.recompute();
+            this.redraw();
             this.cnt ++;
-           
         }        
     },
     mounted : function(){
         this.init();
-        this.ctx = document.getElementById("myCanvas").getContext("2d");
-        this.ctx.canvas.width  = window.innerWidth - 20;
-        this.ctx.canvas.height = 250;
-        setInterval(this.refresh, 5000/360);
+        setInterval( this.refresh, 5000/360);
     }
 })
 
