@@ -4,7 +4,7 @@ Vue.filter('triangle', function (value) {
 var app = new Vue({
     el: '#app',
     data: {
-        canvas : { width :1000, height : 0 },
+        canvas : { width :1000, height : 0, background : '#2e3441' },
         radius : 50,
         step : 0.5,
         origin : { x : 0, y : 0 },
@@ -87,7 +87,8 @@ var app = new Vue({
             }
         },
         redraw : function(e) {
-            this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+            this.ctx.fillStyle = this.canvas.background;
+            this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
             for (var i = 0; i < this.active; i ++) {
                 if (!this.circles[i].hide) {
                     this.ctx.beginPath();
