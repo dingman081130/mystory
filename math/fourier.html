@@ -8,12 +8,12 @@
     <button v-on:click="ppause" v-else>Pause</button>
     <button v-on:click="sstep">Step</button>
     <ul>
-        <li v-for="(circle, index) in circles">
-        <span> {{ circle.theta | triangle }} </span>
-        <span> {{ circle.frequency }} </span>
-        <input v-model="circle.frequency">
-        <button v-on:click="hhide(index)" v-if="circle.hide">Show</button>
-        <button v-on:click="hhide(index)" v-else>Hide</button>
+        <li v-for="n in active">
+        <span> {{ circles[n-1].theta | triangle }} </span>
+        <span> {{ circles[n-1].frequency }} </span>
+        <input v-model="circles[n-1].frequency">
+        <button v-on:click="hhide(n-1)" v-if="circles[n-1].hide">Show</button>
+        <button v-on:click="hhide(n-1)" v-else>Hide</button>
         </li>
     </ul>
 </div>
