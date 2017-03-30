@@ -7,8 +7,16 @@
     <button v-on:click="ppause" v-if="pause">Continue</button>
     <button v-on:click="ppause" v-else>Pause</button>
     <button v-on:click="sstep">Step</button>
+    <ul>
+        <li v-for="circle in circles">
+            {{ circle.theta | triangle }}
+        </li>
+    </ul>
 </div>
 <script>
+Vue.filter('triangle', function (value) {
+    return Math.round(value *360 / 2 / Math.PI)+'°';
+})
 var app = new Vue({
     el: '#app',
     data: {
@@ -18,9 +26,13 @@ var app = new Vue({
         origin : { x : 0, y : 0 },
         wavelenght : 0,
         boundary : 0,
-        circles : [],
-        colors : ['#bf616a', '#a3be8c', '#eccb8b', '#81a1c1', '#88c0d0'],
-        series : 5,
+        circles : [
+            {center:{}, theta:0, intersect:{}, curve:[], cnt:0, color:'#bf616a'},
+            {center:{}, theta:0, intersect:{}, curve:[], cnt:0, color:'#a3be8c'},
+            {center:{}, theta:0, intersect:{}, curve:[], cnt:0, color:'#eccb8b'},
+            {center:{}, theta:0, intersect:{}, curve:[], cnt:0, color:'#81a1c1'},
+            {center:{}, theta:0, intersect:{}, curve:[], cnt:0, color:'#88c0d0'}
+        ],
         show : 3,
         ctx : '',
         pause : false,
@@ -28,17 +40,9 @@ var app = new Vue({
     methods : {
         init : function(e) {
             this.boundary = this.origin.x = 0;
-            for (var i = 0; i < this.series; i ++) {
-                this.circles[i] = {
-                    radius : this.radius / (i + 1),    // 振幅
-                    center : {},                            // 圆心
-                    frequence:  1 + 2 * i,                  // 频率
-                    theta:0,                                // 初相
-                    intersect:{},                           // 交点
-                    curve:[],                               // 曲线
-                    color:this.colors[i],                   // 颜色
-                    cnt:0,                                  // 计数
-                };
+            for (var i = 0; i < this.circles.length; i ++) {
+                this.circles[i].radius = this.radius / (i + 1);     // 振幅
+                this.circles[i].frequence = 1 + 2 * i;              // 频率
                 this.boundary += this.circles[i].radius;
                 this.origin.x += this.circles[i].radius;
             }
@@ -54,7 +58,7 @@ var app = new Vue({
             this.ctx.canvas.height = this.canvas.height;
         },
         iincrease : function() {
-            if (this.show < this.series) {
+            if (this.show < this.circles.length) {
                 this.show ++;
             }
         },
@@ -88,7 +92,7 @@ var app = new Vue({
                     this.circles[i].curve[this.circles[i].cnt % this.wavelenght] = {x:this.boundary, y:this.circles[i].intersect.y};
                     this.circles[i].cnt ++;
                 }
-                this.circles[i].theta += Math.PI / 180 * this.circles[i].frequence;
+                this.circles[i].theta = (this.circles[i].theta + Math.PI / 180 * this.circles[i].frequence) % (2 * Math.PI);
                 current_center = this.circles[i].intersect;
             }
         },
