@@ -1,24 +1,16 @@
-#serviceBox{
-    width:100%;
-    margin: 0 auto;
-    margin-top:75px;
-    height:250px;
-    border:1px solid black;
+#Canvas
+{
+    border: 1px solid #000000;
 }
-.serviceBox1, .serviceBox2, .serviceBox3, .serviceBox4 {
-    float:left;
-    width:25%;
+.Row
+{
+    display: table;
+    width: 100%; /*Optional*/
+    table-layout: fixed; /*Optional*/
+    border-spacing: 10px; /*Optional*/
 }
-
-
-
-.box{
-    height: 250px;
-    background-color: white;
-    border:1px solid #bdbdbd;
-    -webkit-border-radius: 5px;
-    border-radius: 5px;
-    -moz-box-shadow: 0 0 10px #bdbdbd;
-    -webkit-box-shadow: 0 0 10px #bdbdbd;
-    box-shadow: 0 0 10px #bdbdbd;
+.Column
+{
+    display: table-cell;
+    /*background-color: red; /*Optional*/
 }
