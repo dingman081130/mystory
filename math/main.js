@@ -35,7 +35,7 @@ var app = new Vue({
             this.canvas.height = 2 * this.origin.y
             this.boundary += this.origin.x;
             this.boundary += 50;
-            this.wavelenght = parseInt((this.canvas.width - this.boundary) / this.step) - 20;
+            this.wavelenght = parseInt((this.canvas.width - this.boundary) / this.step) - 50;
             
             this.ctx = document.getElementById("Canvas").getContext("2d");
             this.ctx.canvas.width  = this.canvas.width;  //window.innerWidth - 20;
