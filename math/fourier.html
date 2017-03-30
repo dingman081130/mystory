@@ -1,4 +1,11 @@
-<script src="./vue.js"></script>
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="./vue.js"></script>
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+
 <div id="app">
     <canvas id="myCanvas" style="border:1px solid #000000;"></canvas>
     <label>当前有{{ active }}个圆在运行</label>
@@ -16,6 +23,32 @@
         <button v-on:click="hhide(n-1)" v-else>Hide</button>
         </li>
     </ul>
+ <div id="serviceBox"> 
+    <div class="serviceBox1">
+        <div class="box">
+        <h2> Heading 1</h2>
+        <p>Information</p>
+        </div>
+    </div>
+     <div class="serviceBox2">
+         <div class="box">
+        <h2>Heading 2</h2>
+        <p> Information</p>
+         </div>
+    </div>
+    <div class="serviceBox3">
+        <div class="box">
+        <h2>Heading 3</h2>
+        <p>Information</p>
+        </div>
+     </div>
+    <div class="serviceBox4">
+        <div class="box">
+        <h2>Heading 4</h2>
+        <p>Information</p>
+        </div>
+     </div>
+ </div>
 </div>
 <script>
 Vue.filter('triangle', function (value) {
@@ -77,6 +110,7 @@ var app = new Vue({
         },
         hhide : function(index) {
             this.circles[index].hide = !this.circles[index].hide;
+            this.redraw();
         },
         ppause : function() {
             this.pause = !this.pause;
@@ -108,14 +142,14 @@ var app = new Vue({
         redraw : function(e) {
             this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
             for (var i = 0; i < this.active; i ++) {
-                this.ctx.beginPath();
-                this.ctx.fillStyle = this.circles[i].color;
-                this.ctx.strokeStyle = this.circles[i].color;
-                this.ctx.arc(this.circles[i].center.x, this.circles[i].center.y, this.circles[i].radius, 0, 2 * Math.PI);
-                this.ctx.moveTo(this.circles[i].center.x, this.circles[i].center.y);
-                this.ctx.lineTo(this.circles[i].intersect.x, this.circles[i].intersect.y);
-                
                 if (!this.circles[i].hide) {
+                    this.ctx.beginPath();
+                    this.ctx.fillStyle = this.circles[i].color;
+                    this.ctx.strokeStyle = this.circles[i].color;
+                    this.ctx.arc(this.circles[i].center.x, this.circles[i].center.y, this.circles[i].radius, 0, 2 * Math.PI);
+                    this.ctx.moveTo(this.circles[i].center.x, this.circles[i].center.y);
+                    this.ctx.lineTo(this.circles[i].intersect.x, this.circles[i].intersect.y);
+                
                     this.ctx.moveTo(this.circles[i].intersect.x, this.circles[i].intersect.y);
                     this.ctx.lineTo(this.boundary, this.circles[i].intersect.y);
                     for (var j = 0; j < this.circles[i].curve.length; j ++) {
@@ -141,3 +175,5 @@ var app = new Vue({
 })
 
 </script>
+</body>
+</html>
