@@ -4,7 +4,8 @@
     <span>展示级数: {{ show }}</span>
     <button v-on:click="iincrease">↑</button>
     <button v-on:click="ddecrease">↓</button>
-    <button v-on:click="ppause">{{ buttons.pause }}</button>
+    <button v-on:click="ppause" v-if="pause">Continue</button>
+    <button v-on:click="ppause" v-else>Pause</button>
     <button v-on:click="sstep">Step</button>
 </div>
 <script>
@@ -17,16 +18,12 @@ var app = new Vue({
         origin : { x : 0, y : 0 },
         wavelenght : 0,
         boundary : 0,
-        cnt : 0,
         circles : [],
         colors : ['#bf616a', '#a3be8c', '#eccb8b', '#81a1c1', '#88c0d0'],
         series : 5,
-        show : 5,
+        show : 3,
         ctx : '',
         pause : false,
-        buttons : {
-            'pause' : 'Pause',
-        }
     },
     methods : {
         init : function(e) {
@@ -40,6 +37,7 @@ var app = new Vue({
                     intersect:{},                           // 交点
                     curve:[],                               // 曲线
                     color:this.colors[i],                   // 颜色
+                    cnt:0,                                  // 计数
                 };
                 this.boundary += this.circles[i].radius;
                 this.origin.x += this.circles[i].radius;
@@ -64,19 +62,18 @@ var app = new Vue({
             if (this.show > 1) {
                 this.show --;
             }
+            this.circles[this.show].curve = [];
+            this.circles[this.show].cnt = 0;
         },
         ppause : function() {
             this.pause = !this.pause;
-            this.buttons.pause = this.pause ? 'Continue' : 'Pause';
         },
         sstep : function() {
             this.pause = true;
             this.recompute();
             this.redraw();
-            this.cnt ++;
         },
         recompute : function(e) {
-            this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
             var current_center = this.origin;
             for (var i = 0; i < this.circles.length; i ++) {
                 this.circles[i].center = current_center;
@@ -84,15 +81,19 @@ var app = new Vue({
                     x : current_center.x + Math.cos(this.circles[i].theta) * this.circles[i].radius,
                     y : current_center.y - Math.sin(this.circles[i].theta) * this.circles[i].radius,
                 };
-                for (var j = 0; j < this.circles[i].curve.length; j ++) {
-                    this.circles[i].curve[j].x += this.step;
+                if (i < this.show ) {
+                    for (var j = 0; j < this.circles[i].curve.length; j ++) {
+                        this.circles[i].curve[j].x += this.step;
+                    }
+                    this.circles[i].curve[this.circles[i].cnt % this.wavelenght] = {x:this.boundary, y:this.circles[i].intersect.y};
+                    this.circles[i].cnt ++;
                 }
-                this.circles[i].curve[this.cnt % this.wavelenght] = {x:this.boundary, y:this.circles[i].intersect.y};
                 this.circles[i].theta += Math.PI / 180 * this.circles[i].frequence;
                 current_center = this.circles[i].intersect;
             }
         },
         redraw : function(e) {
+            this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
             for (var i = 0; i < this.show; i ++) {
                 this.ctx.beginPath();
                 this.ctx.fillStyle = this.circles[i].color;
@@ -107,7 +108,6 @@ var app = new Vue({
                 }
                 this.ctx.stroke();
             }
-            
         },
         refresh : function(e) {
             if (this.pause) {
@@ -115,7 +115,6 @@ var app = new Vue({
             }
             this.recompute();
             this.redraw();
-            this.cnt ++;
         }        
     },
     mounted : function(){
