@@ -6,29 +6,52 @@
 </head>
 <body>
 
-    <div id="app">
+    <div id="app" class="centered">
+        <header>
+            <b class="red">a</b>
+            <b class="green">Fourier</b>
+            <b class="yellow">Series</b>
+            <b class="blue">Wave</b>
+            <b class="purple">Animation</b>
+        </header>
         <canvas id="Canvas"></canvas>
-        <div class="Row">
-            <label>当前有{{ active }}个圆在运行</label>
-            <button v-on:click="iincrease">↑</button>
-            <button v-on:click="ddecrease">↓</button>
-            <button v-on:click="ppause" v-if="pause">Continue</button>
-            <button v-on:click="ppause" v-else>Pause</button>
-            <button v-on:click="sstep">Step</button>
+        <div class="Row" style="text-align: center;">
+            <button class="big" v-on:click="ppause" v-if="pause">Continue</button>
+            <button class="big" v-on:click="ppause" v-else>Pause</button>
+            <button class="big" v-on:click="sstep">Step</button>
         </div>
         <div class="Row">
-            <div class="Column" v-for="n in active">
-                
-                <div> {{ circles[n-1].theta | triangle }} </div>
-                <div> {{ circles[n-1].frequency }} </div>
-                <input v-model="circles[n-1].frequency">
-                <button v-on:click="hhide(n-1)" v-if="circles[n-1].hide">Show</button>
-                <button v-on:click="hhide(n-1)" v-else>Hide</button>
-                
+            
+            <span class="big">There are </span>
+            <span class="x-big">{{ active }}</span>
+            <div style="display: inline-block;">
+                <button class="small" v-on:click="iincrease">↑</button>
+                <button class="small" v-on:click="ddecrease">↓</button>
+            </div>
+            <span class="big"> circles are running.</span>
+            
+            
+        </div>
+
+        <div class="Row" v-for="n in active">
+            <!-- <div v-bind:class="classObject">123</div> -->
+            <div class="Column">
+                #{{n}}
+            </div>
+            <div class="Column">
+                θ = {{ circles[n-1].theta | triangle }} °
+            </div>
+            <div class="Column">
+                frequency = <input v-model="circles[n-1].frequency"/>
+            </div>
+            <div class="Column">
+                <button class="hide" v-on:click="hhide(n-1)" v-if="circles[n-1].hide">Show</button>
+                <button class="hide" v-on:click="hhide(n-1)" v-else>Hide</button>                
             </div>
         </div>
+        <!-- <img src='./fourier.png'></img> -->
     </div>
-    <img src='./fourier.png'></img>
+    
     <script src="./main.js"></script>
 </body>
 </html>

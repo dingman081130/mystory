@@ -1,5 +1,5 @@
 Vue.filter('triangle', function (value) {
-    return Math.round(value *360 / 2 / Math.PI)+'°';
+    return Math.round(value *360 / 2 / Math.PI);
 })
 var app = new Vue({
     el: '#app',
@@ -15,11 +15,16 @@ var app = new Vue({
             {center:{}, theta:0, intersect:{}, curve:[], cnt:0, color:'#a3be8c', hide:false},
             {center:{}, theta:0, intersect:{}, curve:[], cnt:0, color:'#eccb8b', hide:false},
             {center:{}, theta:0, intersect:{}, curve:[], cnt:0, color:'#81a1c1', hide:false},
-            {center:{}, theta:0, intersect:{}, curve:[], cnt:0, color:'#88c0d0', hide:false}
+            {center:{}, theta:0, intersect:{}, curve:[], cnt:0, color:'#b48ead', hide:false}
         ],
-        active : 3,
+        active : 5,
         ctx : '',
         pause : false,
+    },
+    computed : {
+        classObject : function(n) {
+            return 'clsa';
+        }
     },
     methods : {
         init : function(e) {
