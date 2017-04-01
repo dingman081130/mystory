@@ -1,0 +1,20 @@
+@font-face {
+    font-family: "font";
+    src: url("./font.ttf");
+}
+
+body {
+	font-family: font, "Xingkai SC";
+	margin: 50px;
+}
+#content {
+	font-size: 1.5em;
+	/*-webkit-column-count: 3; /* Chrome, Safari, Opera */
+    /*-moz-column-count: 3; /* Firefox */
+    /*column-count: 3;*/
+
+    /*column-width: 600px;*/
+    columns: 3 500px;
+    -webkit-columns: 3 500px;
+    -moz-column-count: 3 500px;
+}
