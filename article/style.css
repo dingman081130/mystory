@@ -5,16 +5,36 @@
 
 body {
 	font-family: font, "Xingkai SC";
-	margin: 50px;
+	/*margin: 50px;*/
+}
+h1 {
+	font-size: 3em;
+	display: inline-block;
 }
 #content {
 	font-size: 1.5em;
-	/*-webkit-column-count: 3; /* Chrome, Safari, Opera */
-    /*-moz-column-count: 3; /* Firefox */
-    /*column-count: 3;*/
+}
 
-    /*column-width: 600px;*/
+.first {
+	font-size: 2em;
+}
+
+#mume {
+	/*position: fixed;
+	top: 0px;
+	right: 0px;*/
+	float: right;
+}
+
+.top {
+	position: fixed;
+	width: 100%;
+	top: 0px;
+}
+
+#article {
     columns: 3 500px;
     -webkit-columns: 3 500px;
     -moz-column-count: 3 500px;
+    margin-top: 200px;
 }
