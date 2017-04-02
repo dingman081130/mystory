@@ -10,6 +10,7 @@ body {
 h1 {
 	font-size: 3em;
 	display: inline-block;
+	margin-left: 50px;
 }
 #content {
 	font-size: 1.5em;
@@ -30,6 +31,7 @@ h1 {
 	position: fixed;
 	width: 100%;
 	top: 0px;
+	background-color: white;
 }
 
 #article {
@@ -37,4 +39,6 @@ h1 {
     -webkit-columns: 3 500px;
     -moz-column-count: 3 500px;
     margin-top: 200px;
+    margin-left: 50px;
+    margin-right: 50px;
 }
